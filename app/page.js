@@ -1,95 +1,97 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+
+'use client';
+import Image from 'next/image';
+import styles from './page.module.css';
+import { useState } from 'react';
 
 export default function Home() {
+  const [searchInput, setSearchInput] = useState('');
+  const [hasData, setHasData] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [transcript, setTranscript] = useState([]);
+  const [speaking, setSpeaking] = useState(false);
+
+  // Fetch transcript data
+  const fetchData = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/data?topic=${encodeURIComponent(searchInput)}`);
+      if (!res.ok) throw new Error('Network response was not ok');
+      const json = await res.json();
+      setTranscript(json.transcript);
+      setHasData(true);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Generate and play audio for each line
+  const speakTranscript = async () => {
+    setSpeaking(true);
+
+    for (const line of transcript) {
+      try {
+        const ttsRes = await fetch('/api/tts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: line.message, speaker: line.speaker }),
+        });
+
+        if (!ttsRes.ok) throw new Error('TTS request failed');
+
+        const blob = await ttsRes.blob();
+        const url = URL.createObjectURL(blob);
+        const audio = new Audio(url);
+
+        await new Promise((resolve) => {
+          audio.onended = resolve;
+          audio.play();
+        });
+
+        URL.revokeObjectURL(url);
+      } catch (e) {
+        console.error('Error playing TTS:', e);
+      }
+    }
+
+    setSpeaking(false);
+  };
+
+  if (!hasData) {
+    return (
+      <div className={styles.page}>
+        <main className={styles.main}>
+          <div className={styles.searchContainer}>
+            <div className={styles.headerText}>
+              What topic would you like to learn about?
+            </div>
+            <input
+              type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="Enter topic"
+            />
+            <button onClick={fetchData} className={styles.submitBtn} disabled={isLoading || !searchInput}>
+              {isLoading ? 'Loading...' : 'Submit'}
+            </button>
+            {error && <div className={styles.error}>{error}</div>}
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.page}>
       <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>app/page.js</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
+        <button onClick={speakTranscript} disabled={speaking || transcript.length === 0}>
+          {speaking ? 'Speaking...' : 'Play Conversation'}
+        </button>
       </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }

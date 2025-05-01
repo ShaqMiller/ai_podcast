@@ -1,0 +1,111 @@
+"use client"
+import Image from "next/image";
+import styles from "./page.module.css";
+import { useState } from "react";
+export default function Home() {
+
+  // State variables
+  const [searcInput,setSearchInput] = useState("");
+  const [hasData, setHasData] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [transcript, setTranscript] = useState(null);
+  const [speaking, setSpeaking] = useState(false);
+
+
+
+  // Function to fetch data from the server
+  const fetchData = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/data?topic=${searcInput}`);
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const result = await response.json();
+      setTranscript(result.transcript);
+      setHasData(true);
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
+  const speakTranscript = async () => {
+    setSpeaking(true);
+    const voices = speechSynthesis.getVoices();
+    if (!voices.length) {
+      // Voices may not be immediately loaded on some browsers
+      await new Promise(resolve => {
+        speechSynthesis.onvoiceschanged = resolve;
+      });
+    }
+
+    // Re-fetch after voices load
+    const updatedVoices = speechSynthesis.getVoices();
+
+    const alphaVoice = updatedVoices.find(v => v.name.includes('Google US English') || v.name.includes('Male')) || updatedVoices[0];
+    const betaVoice = updatedVoices.find(v => v.name.includes('Google UK English Female') || v.name.includes('Female')) || updatedVoices[1];
+
+    for (let i = 0; i < transcript.length; i++) {
+      const line = transcript[i];
+      const utterance = new SpeechSynthesisUtterance(`${line.message}`);
+
+      // Assign voice based on speaker
+      utterance.voice = line.speaker === 'AI Alpha' ? alphaVoice : betaVoice;
+
+      await new Promise((resolve) => {
+        utterance.onend = resolve;
+        speechSynthesis.speak(utterance);
+      });
+    }
+
+    setSpeaking(false);
+  };
+
+  // Fetch data from the server
+  if(!hasData) {
+    return (
+      <div className={styles.page}>
+        <main className={styles.main}>
+          <div className={styles.searchContainer}>
+            <div className={styles.headerText}>What Topic Would you like to learn about?</div>
+            <input type="text" value={searcInput} onChange={(e)=>setSearchInput(e.target.value)}></input>
+            <button onClick={()=>fetchData()} type="submit" className={styles.submitBtn}>Submit</button>
+            {error && <div className={styles.error}>{error}</div>}
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+
+  if(hasData){
+    return(
+      <button onClick={speakTranscript} disabled={speaking || transcript.length === 0}>
+        {speaking ? 'Speaking...' : 'Play Conversation'}
+      </button>
+    )
+  }
+
+
+  return (
+    <div className={styles.page}>
+      <main className={styles.main}>
+        <div className={styles.sectionContainers}>
+          {/* Transcript Section */}
+          <section className={styles.section}></section>
+
+          {/* User Section */}
+          <section className={styles.section}></section>
+
+          {/* Learning modules */}
+          <section className={styles.section}></section>
+        </div>
+       </main>
+    </div>
+  );
+}
