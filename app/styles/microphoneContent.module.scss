@@ -1,0 +1,107 @@
+@use 'sass:color';
+.container{
+    position: relative;
+    width: 100vw;
+    padding: 0px 25px;
+    padding-top: 100px;
+    //flex: 1;
+}
+
+.microphoneContainer{
+    position: absolute;
+    bottom: 0;
+    height: 35rem;
+    width: auto;
+    top: 0;
+    left: 80%;
+    // transform: translate(-50%,0);
+    transform: rotate(180deg) scaleX(-1);
+    .microphoneContent{
+        position: relative;
+
+        .microphoneImage{
+            height: 35rem;
+            width: auto;
+
+        }
+    
+        .avatarContainers{
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 20%;
+            left: 50%;
+
+            .avatarContent{
+                position: relative;
+
+                .avatarImageContainer{
+                    position: absolute;
+                    transform: translate(-50%,-50%) rotate(182deg);
+                    
+                    .avatarImage{
+                        object-fit: cover;
+                        height: 180px;
+                        width: 180px;
+                        border-radius: 50%;
+                    }
+                }
+            }
+            
+        }
+    }
+    
+}
+
+
+.introContainer{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 40vw;
+    height: 100%;
+    margin: 0 1rem;
+
+        
+    .introText{
+        font-size: 4rem;
+        font-weight: 800;
+        margin: 1rem 0rem;
+        color: $textMain;
+    }
+
+    .highlight{
+        background-color: #9e9eff;
+        padding: 0 0.5rem;
+        border-radius: 10px;
+    }
+
+    .highlight {
+        background: linear-gradient(
+          270deg,
+          color.adjust(#6464d4, $lightness: -12%),
+          color.adjust(#60c1f1, $lightness: -12%),
+          color.adjust(#ff77a9, $lightness: 5%)
+        );
+        background-size: 400% 400%;
+        animation: gradientShift 10s ease infinite;
+        padding: 0 1rem;
+        border-radius: 10px;
+        color: inherit;
+      }
+      
+      
+}
+@keyframes gradientShift {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+  
+  

@@ -1,39 +1,29 @@
-import { NextResponse } from 'next/server';
-import textToSpeech from '@google-cloud/text-to-speech';
+export async function POST(req, res) {
+  if (req.method !== 'POST') return res.status(405).end();
 
-// Initialize Google Cloud TTS client
-const client = new textToSpeech.TextToSpeechClient();
-
-// Request body: { text: string; speaker: 'AI Alpha' | 'AI Beta' }
-export async function POST(req) {
-  const { text, speaker } = await req.json();
-
-  // Choose voice based on speaker
-  const voiceConfig = {
-    'AI Alpha': { name: 'en-US-Wavenet-D', ssmlGender: 'MALE' },
-    'AI Beta':  { name: 'en-US-Wavenet-E', ssmlGender: 'FEMALE' },
-  };
-
-  const { name, ssmlGender } = voiceConfig[speaker] || voiceConfig['AI Beta'];
-
-  // Build synthesis request
-  const request = {
-    input: { text },
-    voice: { languageCode: 'en-US', name, ssmlGender },
-    audioConfig: { audioEncoding: 'MP3' },
-  };
+  // Parse the request body as JSON
+  const { text,voiceIndex,speakerIndex  } = await req.json(); // Using await req.json() to parse JSON body
+  console.log(`Speaker #${speakerIndex+1} : ${text}`);
 
   try {
-    const [response] = await client.synthesizeSpeech(request);
-    const audioContent = response.audioContent;
-
-    // Return binary MP3 response
-    return new NextResponse(Buffer.from(audioContent, 'base64'), {
-      status: 200,
-      headers: { 'Content-Type': 'audio/mpeg' },
+    const ttsRes = await fetch('http://localhost:8000/synthesize', {
+      method: 'POST',
+      body: new URLSearchParams({ text ,voiceIndex }),
     });
-  } catch (error) {
-    console.error('TTS error:', error);
-    return new NextResponse(JSON.stringify({ error: error.message }), { status: 500 });
+    
+    if (!ttsRes.ok) throw new Error('TTS server error');
+
+    const audioBuffer = await ttsRes.arrayBuffer();
+
+    // Return the audio response with the correct headers
+    return new Response(Buffer.from(audioBuffer), {
+      headers: {
+        'Content-Type': 'audio/wav',
+        'Content-Disposition': 'inline; filename="speech.wav"',
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    return new Response(JSON.stringify({ error: 'TTS processing failed' }), { status: 500 });
   }
 }

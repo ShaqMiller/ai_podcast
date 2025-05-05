@@ -1,0 +1,67 @@
+// Define color variables for dark mode
+$background-dark: #0e1117;
+$surface-dark: #1a1f2b;
+$primary-dark: #9e9eff;
+$accent1-dark: #00ffc2;
+$accent2-dark: #ffc0fb;
+$textMain-dark: #f4f4f4;
+$textDim-dark: #a9adc1;
+$error-dark: #ff6b6b;
+
+// Define color variables for light mode
+$background-light: #ffffff;
+$surface-light: #f9f9f9;
+$primary-light: #6366f1;
+$accent1-light: #00b3a5;
+$accent2-light: #ff77d6;
+$textMain-light: #333333;
+$textDim-light: #888888;
+$error-light: #ff6b6b;
+
+// Default to dark mode
+$background: $background-dark;
+$surface: $surface-dark;
+$primary: $primary-dark;
+$accent1: $accent1-dark;
+$accent2: $accent2-dark;
+$textMain: $textMain-dark;
+$textDim: $textDim-dark;
+$error: $error-dark;
+
+body {
+  background-color: $background;
+  color: $textMain;
+  font-family: 'Inter', sans-serif;
+}
+
+.light-mode {
+  $background: $background-light;
+  $surface: $surface-light;
+  $primary: $primary-light;
+  $accent1: $accent1-light;
+  $accent2: $accent2-light;
+  $textMain: $textMain-light;
+  $textDim: $textDim-light;
+  $error: $error-light;
+
+  body {
+    background-color: $background;
+    color: $textMain;
+  }
+
+  .headerText {
+    background-color: $primary;
+    color: $textMain;
+  }
+
+  .submitBtn {
+    background-color: $primary;
+    color: $textMain;
+  }
+
+  .searchContainer input:focus {
+    border-color: $primary;
+  }
+}
+
+// Add other light-mode overrides below as needed

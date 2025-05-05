@@ -1,0 +1,119 @@
+@use 'sass:color';
+
+.container {
+  display: flex;
+  padding: 1rem 3rem;
+  color: $textMain;
+  justify-content: space-between;
+  height: 5vh;
+  background-color: $surface;
+}
+
+.leftSection {
+  display: flex;
+
+  .title {
+    font-size: 1.8rem;
+    color: $textMain;
+    font-weight: 700;
+  }
+
+  .navContainer {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin: 0 3rem;
+
+    .nav {
+      font-size: 1rem;
+      margin: 0 0.5rem;
+
+      &:hover {
+        cursor: pointer;
+        color: color.adjust($textMain, $lightness: -10%);
+      }
+    }
+  }
+
+  .signupBut {
+    color: $accent1;
+    border-radius: 2px;
+    text-align: center;
+    font-weight: 700;
+
+    &:hover {
+      cursor: pointer;
+      color: color.adjust($accent1, $lightness: -10%) !important;
+    }
+  }
+
+  .loginBut {
+    color: $primary;
+    border-radius: 2px;
+    text-align: center;
+    font-weight: 700;
+
+    &:hover {
+      cursor: pointer;
+      color: color.adjust($primary, $lightness: -10%) !important;
+    }
+  }
+}
+
+.searchContainer {
+  display: flex;
+  position: relative;
+
+  input {
+    border: none;
+    color: $textMain;
+    border-radius: 25px;
+    background-color: rgba(255, 255, 255, 0.055);
+    outline: none;
+    font-size: 0.9rem;
+    width: 10rem;
+    height: 2rem;
+    padding: 0.5rem 0.5rem;
+
+    &::placeholder {
+      color: $textMain;
+    }
+  }
+
+  .searchBut {
+    position: absolute;
+    height: 90%;
+    aspect-ratio: 1;
+    top: 50%;
+    right: 0;
+    transform: translate(0, -50%);
+    background-color: $textMain;
+    border-radius: 50%;
+  }
+}
+
+// Theme toggle button styles
+.themeToggleBtn {
+  background-color: $primary;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  margin-left: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background-color: color.adjust($primary, $lightness: -10%);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+}
